@@ -1,2 +1,0 @@
-# CryptoBalanceTracker
-crypto balance tracker
