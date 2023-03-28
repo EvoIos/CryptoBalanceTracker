@@ -54,7 +54,7 @@ function getAllIds(symbols, callback) {
 }
   
 async function updatePrices(getIdsFunc) {
-  const symbols = ['BTC', 'ETH', 'XRP'];
+  const symbols = ['BTC', 'ETH', 'XRP', 'weth', 'arb', 'magic', 'stg'];
   const ids = await getIdsFunc(symbols);
   if (ids) {
     const prices = await getPriceByIds(ids);
