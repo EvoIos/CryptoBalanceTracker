@@ -1,6 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const fetch = require('node-fetch');
-// const cron = require('node-cron');
+const cron = require('node-cron');
 
 const db = new sqlite3.Database('./cryptocurrencies.db', (err) => {
   if (err) {
@@ -73,9 +73,14 @@ async function updatePrices(getIdsFunc) {
   }
 }
   
-updatePrices(getIdsBySymbols);
-  // Schedule the task to run every 5 minutes
-//   cron.schedule('*/5 * * * *', () => {
-//     updatePrices();
-//   });
+
+  //Schedule the task to run every 5 minutes
+  // cron.schedule('*/5 * * * *', () => {
+  //   updatePrices(getIdsBySymbols);
+  // });
+
+  // 5s
+  cron.schedule('*/5 * * * * *', () => {
+    updatePrices(getIdsBySymbols);
+  });
   
