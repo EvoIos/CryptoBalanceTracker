@@ -81,6 +81,7 @@ async function updatePrices(getIdsFunc) {
 
   // 5s
   cron.schedule('*/5 * * * * *', () => {
+    console.log(`Updating prices at ${new Date().toLocaleString()}`);
     updatePrices(getIdsBySymbols);
   });
   
