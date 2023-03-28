@@ -23,41 +23,57 @@ async function getPriceByIds(ids) {
   }
 }
 
-function getAllIds(callback) {
-    db.all('SELECT id FROM cryptocurrencies', [], (err, rows) => {
+async function getIdsBySymbols(symbols) {
+  return new Promise((resolve, reject) => {
+    const symbolQuery = symbols.map(symbol => `'${symbol.toLowerCase()}'`).join(',');
+    const sql = `SELECT id FROM cryptocurrencies WHERE lower(symbol) IN (${symbolQuery})`;
+    db.all(sql, [], (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        const ids = rows.map(row => row.id);
+        resolve(ids);
+      }
+    });
+  });
+}
+
+function getAllIds(symbols, callback) {
+    const symbolQuery = symbols.map(symbol => `'${symbol}'`).join(',');
+    const sql = `SELECT id FROM cryptocurrencies WHERE symbol IN (${symbolQuery})`;
+  
+    db.all(sql, [], (err, rows) => {
       if (err) {
         console.error(err.message);
         callback(null);
       } else {
-        let ids = rows.map(row => row.id);
-        ids = ids.slice(0, 2);
+        const ids = rows.map(row => row.id);
         callback(ids);
       }
     });
-  }
+}
   
-
-  async function updatePrices() {
-    getAllIds(async (ids) => {
-      if (ids) {
-        const prices = await getPriceByIds(ids);
-        if (prices) {
-          ids.forEach(id => {
-            const price = prices[id].usd;
-            db.run('UPDATE cryptocurrencies SET price = ? WHERE id = ?', [price, id], (err) => {
-              if (err) {
-                console.error(err.message);
-              } else {
-                console.log(`Updated price for ${id}: ${price}`);
-              }
-            });
-          });
-        }
-      }
-    });
+async function updatePrices(getIdsFunc) {
+  const symbols = ['BTC', 'ETH', 'XRP'];
+  const ids = await getIdsFunc(symbols);
+  if (ids) {
+    const prices = await getPriceByIds(ids);
+    if (prices) {
+      ids.forEach(id => {
+        const price = prices[id].usd;
+        db.run('UPDATE cryptocurrencies SET price = ? WHERE id = ?', [price, id], (err) => {
+          if (err) {
+            console.error(err.message);
+          } else {
+            console.log(`Updated price for ${id}: ${price}`);
+          }
+        });
+      });
+    }
   }
+}
   
-  updatePrices();
+updatePrices(getIdsBySymbols);
   // Schedule the task to run every 5 minutes
 //   cron.schedule('*/5 * * * *', () => {
 //     updatePrices();
