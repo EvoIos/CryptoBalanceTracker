@@ -61,7 +61,7 @@ const initContracts = (web3Instance, tokenList) => {
       };
     });
   
-    return JSON.stringify(result, null, 2);
+    return JSON.stringify(result, null, '');
   }
 
   async function readAddressesFromCSV(filePath) {
