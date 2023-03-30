@@ -28,7 +28,18 @@ router.get('/balances', authenticateToken, async (req, res) => {
     console.log('查询结果：\n', result);
 
     // 在这里，您可以使用查询结果进行其他操作，如将其保存到数据库或发送到客户端等。
-    res.json({result});
+    // res.json({result});
+
+    // 将查询结果格式化为 JSON 字符串
+    const jsonResult = JSON.stringify(result, null, '');
+
+    // 将 JSON 字符串解析为 JavaScript 对象
+    const parsedResult = JSON.parse(jsonResult);
+
+    // 在这里，您可以使用查询结果进行其他操作，如将其保存到数据库或发送到客户端等。
+    res.setHeader('Content-Type', 'application/json');
+    res.send(parsedResult);
+
   } catch (error) {
     console.error('从CSV文件读取地址时出错：', error);
     res.status(500).json({error: '从CSV文件读取地址时出错'});
