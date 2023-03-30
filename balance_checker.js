@@ -1,5 +1,7 @@
 const { web3 } = require('./web3_instance/etherum');
 const arb_web3 = require('./web3_instance/arbitrum');
+const fs = require('fs');
+const csvParser = require('csv-parser');
 
 // balance_checker.js
 const initContracts = (web3Instance, tokenList) => {
@@ -61,8 +63,26 @@ const initContracts = (web3Instance, tokenList) => {
   
     return JSON.stringify(result, null, 2);
   }
+
+  async function readAddressesFromCSV(filePath) {
+    return new Promise((resolve, reject) => {
+      const addresses = [];
+      fs.createReadStream(filePath)
+        .pipe(csvParser())
+        .on('data', (row) => {
+          addresses.push(row.address);
+        })
+        .on('end', () => {
+          resolve(addresses);
+        })
+        .on('error', (error) => {
+          reject(error);
+        });
+    });
+  }
   
   module.exports = {
-    getBalances: getBalances
+    getBalances: getBalances,
+    readAddressesFromCSV: readAddressesFromCSV
   };
   
