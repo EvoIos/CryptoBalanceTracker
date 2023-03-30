@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const balanceChecker = require('./balance_checker');
-// const tokens = require('./tokens');
+
+const authenticateToken = require('../middleware/authenticateToken');
 
 const tokens = {
     ethereum: {
@@ -20,9 +21,9 @@ const tokens = {
     }
   };
 
-router.get('/balances', async (req, res) => {
+router.get('/balances', authenticateToken, async (req, res) => {
   try {
-    const targetAddresses = await balanceChecker.readAddressesFromCSV('addresses.csv');
+    const targetAddresses = await balanceChecker.readAddressesFromCSV('./CryptoBalanceTracker/addresses.csv');
     const result = await balanceChecker.getBalances(targetAddresses, tokens);
     console.log('查询结果：\n', result);
 
