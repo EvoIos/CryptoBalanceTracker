@@ -1,4 +1,6 @@
 const express = require('express');
+const cors = require('cors');
+
 const router = express.Router();
 const balanceChecker = require('./balance_checker');
 
@@ -21,10 +23,13 @@ const tokens = {
     }
   };
 
-router.get('/balances', authenticateToken, async (req, res) => {
+// 允许跨域访问
+router.use(cors());
+
+router.get('/balances', cors(), authenticateToken, async (req, res) => {
   try {
     const targetAddresses = await balanceChecker.readAddressesFromCSV('./CryptoBalanceTracker/addresses.csv');
-    const result = await balanceChecker.getBalances(targetAddresses, tokens);
+    const result = balanceChecker.getBalancesV1(targetAddresses, tokens);
     console.log('查询结果：\n', result);
 
     // 在这里，您可以使用查询结果进行其他操作，如将其保存到数据库或发送到客户端等。
