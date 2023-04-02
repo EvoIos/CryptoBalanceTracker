@@ -53,14 +53,46 @@ const initContracts = (web3Instance, tokenList) => {
       checkBalances(arbitrumContracts, targetAddresses)
     ]);
   
-    const result = targetAddresses.map((address, index) => {
-      return {
-        address: address,
-        ethereum: ethereumBalances[index].balances,
-        arbitrum: arbitrumBalances[index].balances
-      };
+    /** json结构
+     *  {{"address":"0x...","ethereum":[{"symbol":"usdt","amount":0}], "arbitrum":[{"symbol":"arb","amount":0} }] }
+     */
+    // const result = targetAddresses.map((address, index) => {
+    //   return {
+    //     address: address,
+    //     ethereum: ethereumBalances[index].balances,
+    //     arbitrum: arbitrumBalances[index].balances
+    //   };
+    // });
+
+    /** json结构
+     *  [
+     *  { "address": "", "chain": "ethereum", "symbol_values": [{"usdc": 0}, {"usdt": 0}] },
+     *  { "address": "", "chain": "arbitrum", "symbol_values": [{"usdc": 0}, {"usdt": 0}] }
+     *  ]
+     */
+    const result = targetAddresses.flatMap((address, index) => {
+      const ethereumBalancesObj = Object.fromEntries(
+        ethereumBalances[index].balances.map(({ symbol, amount }) => [symbol, amount])
+      );
+    
+      const arbitrumBalancesObj = Object.fromEntries(
+        arbitrumBalances[index].balances.map(({ symbol, amount }) => [symbol, amount])
+      );
+    
+      return [
+        {
+          address: address,
+          chain: "ethereum",
+          symbol_values: ethereumBalancesObj,
+        },
+        {
+          address: address,
+          chain: "arbitrum",
+          symbol_values: arbitrumBalancesObj,
+        },
+      ];
     });
-  
+    
     return JSON.stringify(result, null, '');
   }
 
